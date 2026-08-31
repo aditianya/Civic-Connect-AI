@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 function Report() {
@@ -6,6 +7,8 @@ function Report() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Roads");
   const [location, setLocation] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,6 +21,8 @@ function Report() {
     });
 
     alert("Report submitted successfully!");
+
+    navigate("/reports");
   };
 
   return (
@@ -43,7 +48,6 @@ function Report() {
           onSubmit={handleSubmit}
         >
 
-          {/* Title */}
           <label>
             Issue title
 
@@ -56,7 +60,6 @@ function Report() {
             />
           </label>
 
-          {/* Description */}
           <label>
             Description
 
@@ -68,7 +71,6 @@ function Report() {
             />
           </label>
 
-          {/* Category */}
           <label>
             Category
 
@@ -86,13 +88,12 @@ function Report() {
             </select>
           </label>
 
-          {/* Location */}
           <label>
             Location
 
             <input
               type="text"
-              placeholder="Example: Main Road, Bhagalpur"
+              placeholder="Example: Main Road"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               required
