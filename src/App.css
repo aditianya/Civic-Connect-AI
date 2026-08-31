@@ -296,3 +296,384 @@
 .navbar-links a:hover {
   color: var(--teal);
 }
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard {
+  min-height: 100vh;
+  background: #eef4f1;
+}
+
+.hero {
+  position: relative;
+
+  min-height: 560px;
+
+  display: flex;
+  align-items: flex-end;
+
+  padding: 80px 7vw;
+
+  overflow: hidden;
+
+  color: white;
+
+  background: var(--graphite);
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+
+  z-index: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(20, 32, 27, 0.9),
+      rgba(20, 32, 27, 0.55) 48%,
+      rgba(20, 32, 27, 0.2)
+    ),
+    url("/assets/civicmind-hero.png");
+
+  background-size: cover;
+  background-position: center;
+}
+
+.hero__content {
+  position: relative;
+
+  z-index: 1;
+
+  width: min(680px, 100%);
+}
+
+.hero h1 {
+  margin: 10px 0 20px;
+
+  font-size: clamp(4rem, 9vw, 8rem);
+
+  line-height: 0.85;
+
+  letter-spacing: -0.06em;
+}
+
+.hero__lede {
+  max-width: 620px;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 1.08rem;
+
+  line-height: 1.6;
+}
+
+.hero__actions {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 28px;
+}
+
+.button--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  color: white;
+
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.button--ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+/*METRICS*/
+.metrics {
+  position: relative;
+  z-index: 2;
+  width: min(1180px, calc(100% - 40px));
+  margin: -58px auto 42px;
+  padding: 16px;
+
+  display: flex;
+  gap: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 50px rgba(23, 33, 29, 0.13);
+
+  backdrop-filter: blur(16px);
+}
+
+.metrics article {
+  flex: 1 1 180px;
+  padding: 18px;
+  border-radius: 7px;
+  background: #f4f8f6;
+}
+
+.metrics strong {
+  display: block;
+  margin-bottom: 5px;
+
+  color: #24302c;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.metrics span {
+  color: #60706a;
+}
+@media (max-width: 800px) {
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================
+   OPERATIONS CONSOLE
+========================= */
+
+.operations {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 30px 0 80px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 24px;
+}
+
+.section-heading h2 {
+  margin: 8px 0 0;
+
+  color: var(--graphite);
+
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 0.95;
+}
+
+.section-heading > p {
+  max-width: 420px;
+
+  margin: 0;
+
+  color: var(--muted);
+
+  line-height: 1.5;
+}
+
+.operations-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 14px;
+}
+
+.operation-card {
+  padding: 24px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: var(--surface);
+
+  box-shadow: 0 10px 30px rgba(23, 33, 29, 0.06);
+}
+
+.card-label {
+  margin: 0 0 12px;
+
+  color: var(--teal);
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.operation-card h3 {
+  margin: 0 0 10px;
+
+  color: var(--graphite);
+
+  font-size: 1.4rem;
+}
+
+.operation-card > p:not(.card-label) {
+  color: var(--muted);
+
+  line-height: 1.5;
+}
+
+.operation-card .button {
+  margin-top: 12px;
+}
+
+.zone,
+.action-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 13px 0;
+
+  border-top: 1px solid var(--line);
+
+  color: var(--graphite);
+
+  font-size: 0.88rem;
+}
+
+.zone strong {
+  color: var(--teal);
+}
+
+.action-item strong {
+  font-size: 0.7rem;
+
+  letter-spacing: 0.08em;
+}
+
+.priority-high {
+  color: var(--coral);
+}
+
+.priority-medium {
+  color: var(--amber);
+}
+
+.priority-low {
+  color: var(--green);
+}
+@media (max-width: 800px) {
+  .operations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+}
+/* =========================
+   REPORT PAGE
+========================= */
+
+.report-page {
+  min-height: calc(100vh - 77px);
+
+  padding: 70px 20px 100px;
+
+  background: #eef4f1;
+}
+
+.report-header {
+  width: min(760px, 100%);
+
+  margin: 0 auto 35px;
+}
+
+.report-header h1 {
+  margin: 8px 0 15px;
+
+  color: var(--graphite);
+
+  font-size: clamp(2.5rem, 7vw, 5rem);
+
+  line-height: 0.95;
+}
+
+.report-header > p:last-child {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: var(--muted);
+
+  line-height: 1.6;
+}
+
+.report-form {
+  width: min(760px, 100%);
+
+  margin: auto;
+  padding: 30px;
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
+}
+
+.report-form label {
+  display: grid;
+
+  gap: 8px;
+
+  margin-bottom: 20px;
+
+  color: var(--graphite);
+
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.report-form input,
+.report-form textarea,
+.report-form select {
+  width: 100%;
+
+  padding: 13px;
+
+  border: 1px solid var(--line);
+  border-radius: 8px;
+
+  color: var(--ink);
+
+  background: #fff;
+}
+
+.report-form textarea {
+  min-height: 150px;
+
+  resize: vertical;
+}
+
+.report-form input:focus,
+.report-form textarea:focus,
+.report-form select:focus {
+  outline: 3px solid rgba(22, 125, 134, 0.2);
+
+  border-color: var(--teal);
+}
+
+.report-form button {
+  width: 100%;
+
+  justify-content: center;
+}

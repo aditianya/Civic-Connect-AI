@@ -4,7 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Report from "./pages/Report";
 import "./App.css";
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>}/>
         {/* Protected route */}
         <Route
           path="/dashboard"
