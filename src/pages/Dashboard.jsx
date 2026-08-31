@@ -1,9 +1,15 @@
+import Navbar from "../components/Navbar";
+
 function Dashboard() {
   return (
-    <div>
-      <h1>CivicMind AI Dashboard</h1>
-      <p>Welcome to CivicConnectAI.</p>
-    </div>
+    <>
+      <Navbar />
+
+      <main>
+        <h1>CivicMind AI Dashboard</h1>
+        <p>Welcome to CivicConnectAI.</p>
+      </main>
+    </>
   );
 }
 

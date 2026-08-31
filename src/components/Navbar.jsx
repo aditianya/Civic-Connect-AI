@@ -2,22 +2,21 @@ import { Link } from "react-router-dom";
 
 function Navbar() {
   return (
-    <nav className="navbar">
-      <Link to="/" className="logo">
-        CivicConnect<span>AI</span>
+    <header className="navbar">
+      <Link to="/dashboard" className="navbar-brand">
+        <span className="brand-mark">CM</span>
+
+        <span>
+          <strong>CivicMind AI</strong>
+          <small>Community Operations</small>
+        </span>
       </Link>
 
-      <div className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/report">Report Issue</Link>
+      <nav className="navbar-links">
         <Link to="/dashboard">Dashboard</Link>
-        <Link to="/admin">Admin</Link>
-      </div>
-
-      <Link to="/login" className="login-btn">
-        Login
-      </Link>
-    </nav>
+        <Link to="/profile">Profile</Link>
+      </nav>
+    </header>
   );
 }
 

@@ -23,35 +23,76 @@ function Register() {
   };
 
   return (
-    <div className="auth-page">
-      <form className="auth-card" onSubmit={handleRegister}>
-        <h1>Create Account</h1>
+    <section className="login-screen">
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+      <div className="login-media"></div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <form className="login-card" onSubmit={handleRegister}>
 
-        {error && <p className="error">{error}</p>}
+        <div className="brand brand--dark">
+          <span className="brand__mark">CM</span>
+          <span>CivicMind AI</span>
+        </div>
 
-        <button type="submit">Create Account</button>
-
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
+        <p className="eyebrow">
+          Community Hero
         </p>
+
+        <h1>
+          Create your account
+        </h1>
+
+        <p className="login-copy">
+          Join CivicMind AI to report civic issues,
+          track community problems, and connect
+          with city authorities.
+        </p>
+
+        <label>
+          Email
+
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
+
+        <label>
+          Password
+
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </label>
+
+        {error && (
+          <p className="error">
+            {error}
+          </p>
+        )}
+
+        <button
+          className="button button--primary login-submit"
+          type="submit"
+        >
+          Create account
+        </button>
+
+        <p className="login-hint">
+          Already have an account?{" "}
+          <Link to="/">
+            Login
+          </Link>
+        </p>
+
       </form>
-    </div>
+
+    </section>
   );
 }
 
