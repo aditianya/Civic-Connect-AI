@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Report from "./pages/Report";
 import Reports from "./pages/Reports";
 import "./App.css";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>}/>
         {/* Protected route */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route
           path="/dashboard"
           element={
