@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../services/firebase";
 
 function Report() {
   const [title, setTitle] = useState("");
@@ -10,19 +12,29 @@ function Report() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log({
-      title,
-      description,
-      category,
-      location,
-    });
+  try {
+  await addDoc(collection(db, "reports"), {
+    title,
+    description,
+    category,
+    location,
+    status: "Pending",
+    createdAt: serverTimestamp(),
+  });
 
-    alert("Report submitted successfully!");
+  alert("Report submitted successfully!");
 
-    navigate("/reports");
+  setTitle("");
+  setDescription("");
+  setCategory("Road");
+  setLocation("");
+} catch (error) {
+  console.error("Error submitting report:", error);
+  alert("Failed to submit report");
+}
   };
 
   return (

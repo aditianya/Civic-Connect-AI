@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Report from "./pages/Report";
+import Reports from "./pages/Reports";
 import "./App.css";
 
 function App() {
@@ -25,7 +26,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+  path="/reports"
+  element={
+    <ProtectedRoute>
+      <Reports />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

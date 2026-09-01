@@ -15,6 +15,7 @@ function Navbar() {
       <nav className="navbar-links">
         <Link to="/dashboard">Dashboard</Link>
         <Link to="/profile">Profile</Link>
+        <Link to="/reports">Reports</Link>
       </nav>
     </header>
   );
