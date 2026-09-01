@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 
 function AdminDashboard() {
@@ -20,6 +20,24 @@ function AdminDashboard() {
     fetchReports();
   }, []);
 
+  const updateStatus = async (id, newStatus) => {
+  try {
+    await updateDoc(doc(db, "reports", id), {
+      status: newStatus,
+    });
+
+    setReports((prevReports) =>
+      prevReports.map((report) =>
+        report.id === id
+          ? { ...report, status: newStatus }
+          : report
+      )
+    );
+  } catch (error) {
+    console.error("Error updating status:", error);
+  }
+};
+
   return (
     <div>
       <h1>Admin Dashboard</h1>
@@ -27,12 +45,20 @@ function AdminDashboard() {
       <h2>Total Reports: {reports.length}</h2>
 
       {reports.map((report) => (
-        <div key={report.id}>
+        <div className="report-card" key={report.id}>
           <h3>{report.title}</h3>
           <p>{report.description}</p>
           <p>Category: {report.category}</p>
           <p>Location: {report.location}</p>
           <p>Status: {report.status}</p>
+
+        <button onClick={() => updateStatus(report.id, "In Progress")}>
+           Mark In Progress
+        </button>
+
+        <button onClick={() => updateStatus(report.id, "Resolved")}>
+          Mark Resolved
+        </button>
         </div>
       ))}
     </div>

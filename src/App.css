@@ -715,16 +715,26 @@
   gap: 14px;
 }
 
+/* Report cards */
 .report-card {
-  padding: 22px;
-
-  border: 1px solid var(--line);
-  border-radius: 10px;
-
   background: white;
-  box-shadow: 0 10px 30px rgba(23, 33, 29, 0.06);
+  border: 1px solid #dfe5e2;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  max-width: 700px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+.report-card h3 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+.report-card p {
+  margin: 8px 0;
+  color: #5f6b66;
+}
 .report-card-top {
   display: flex;
   align-items: center;
