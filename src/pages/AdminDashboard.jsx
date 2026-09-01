@@ -4,6 +4,13 @@ import { db } from "../services/firebase";
 
 function AdminDashboard() {
   const [reports, setReports] = useState([]);
+  const pendingReports = reports.filter(
+  (report) => report.status === "Pending"
+).length;
+
+  const resolvedReports = reports.filter(
+  (report) => report.status === "Resolved"
+).length;
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -39,18 +46,33 @@ function AdminDashboard() {
 };
 
   return (
-    <div>
+    <div className="admin-dashboard">
       <h1>Admin Dashboard</h1>
 
-      <h2>Total Reports: {reports.length}</h2>
+      <div className="admin-metrics">
+        <div className="metric-card">
+          <h3>Total Reports</h3>
+          <p>{reports.length}</p>
+        </div>
 
-      {reports.map((report) => (
+        <div className="metric-card">
+          <h3>Pending</h3>
+          <p>{pendingReports}</p>
+        </div>
+
+        <div className="metric-card">
+          <h3>Resolved</h3>
+          <p>{resolvedReports}</p>
+        </div>
+      </div>
+
+    {reports.map((report) => (
         <div className="report-card" key={report.id}>
           <h3>{report.title}</h3>
           <p>{report.description}</p>
           <p>Category: {report.category}</p>
           <p>Location: {report.location}</p>
-          <p>Status: {report.status}</p>
+          <p>Status:<span className={`status-badge ${report.status?.toLowerCase().replace(" ", "-")}`}>{report.status}</span></p>
 
         <button onClick={() => updateStatus(report.id, "In Progress")}>
            Mark In Progress
