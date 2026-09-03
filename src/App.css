@@ -852,3 +852,81 @@
   background: #d1e7dd;
   color: #0f5132;
 }
+/* =========================
+   MY REPORTS
+========================= */
+
+.my-reports-page {
+  min-height: calc(100vh - 77px);
+  padding: 70px 20px 100px;
+  background: #eef4f1;
+}
+
+.my-reports-header {
+  width: min(900px, 100%);
+  margin: 0 auto 35px;
+}
+
+.my-reports-header h1 {
+  margin: 8px 0 15px;
+  color: var(--graphite);
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  line-height: 0.9;
+}
+
+.my-reports-header > p:last-child {
+  max-width: 650px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.my-reports-list {
+  width: min(900px, 100%);
+  margin: auto;
+
+  display: grid;
+  gap: 14px;
+}
+
+.my-report-card {
+  padding: 24px;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: white;
+  box-shadow: 0 10px 30px rgba(23, 33, 29, 0.06);
+}
+
+.my-report-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.my-report-card h2 {
+  margin: 0 0 12px;
+  color: var(--graphite);
+}
+
+.my-report-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.empty-reports {
+  padding: 50px 25px;
+
+  text-align: center;
+
+  border: 1px solid var(--line);
+  border-radius: 10px;
+
+  background: white;
+}
+
+.empty-reports h2 {
+  margin-bottom: 8px;
+}

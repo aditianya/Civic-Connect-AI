@@ -16,6 +16,7 @@ function Navbar() {
         <Link to="/dashboard">Dashboard</Link>
         <Link to="/profile">Profile</Link>
         <Link to="/reports">Reports</Link>
+        <Link to="/my-reports">My Reports</Link>
       </nav>
     </header>
   );
