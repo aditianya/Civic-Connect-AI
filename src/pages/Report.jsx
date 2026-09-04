@@ -10,6 +10,7 @@ function Report() {
   const [location, setLocation] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [severity, setSeverity] = useState("Medium");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,6 +51,9 @@ function Report() {
         imageUrl: cloudinaryData.secure_url,
         userId: auth.currentUser?.uid || null,
         status: "Pending",
+        severity: severity,
+        aiCategory: category,
+        aiProcessed: false,
         createdAt: serverTimestamp(),
       });
 
@@ -144,6 +148,15 @@ function Report() {
               onChange={(e) => setImage(e.target.files[0])}
               required
             />
+          </label>
+          <label>Severity
+            <select
+            value={severity}
+            onChange={(e) => setSeverity(e.target.value)}>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
           </label>
 
           <button
