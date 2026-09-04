@@ -78,9 +78,8 @@ function MyReports() {
                 </div>
 
                 <h2>{report.title}</h2>
-
+                {report.imageUrl && (<img src={report.imageUrl} alt={report.title} className="report-image"/>)}
                 <p>{report.description}</p>
-
                 <p className="report-location">
                   📍 {report.location}
                 </p>

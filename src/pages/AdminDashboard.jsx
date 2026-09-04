@@ -79,6 +79,12 @@ function AdminDashboard() {
       {filteredReports.map((report) => (
         <div className="report-card" key={report.id}>
           <h3>{report.title}</h3>
+          {report.imageUrl && (<img src={report.imageUrl}
+    alt={report.title}
+    className="report-image"
+  />
+)}
+
           <p>{report.description}</p>
           <p>
             Category: {report.category}
