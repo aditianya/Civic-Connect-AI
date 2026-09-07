@@ -83,6 +83,31 @@ function MyReports() {
                 <p className="report-location">
                   📍 {report.location}
                 </p>
+                {report.aiProcessed && (
+  <div className="ai-analysis">
+    <h3>🤖 AI Analysis</h3>
+
+    <p>
+      <strong>Suggested Issue:</strong>{" "}
+      {report.aiSuggestedTitle}
+    </p>
+
+    <p>
+      <strong>Category:</strong>{" "}
+      {report.aiCategory}
+    </p>
+
+    <p>
+      <strong>Severity:</strong>{" "}
+      {report.aiSeverity}
+    </p>
+
+    <p>
+      <strong>AI Insight:</strong>{" "}
+      {report.aiExplanation}
+    </p>
+  </div>
+)}
               </article>
             ))
           )}

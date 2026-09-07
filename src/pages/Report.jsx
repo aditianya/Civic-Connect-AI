@@ -13,65 +13,104 @@ function Report() {
   const [severity, setSeverity] = useState("Medium");
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!image) {
-      alert("Please select an image");
-      return;
-    }
+  if (!image) {
+    alert("Please select an image");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      // Upload image to Cloudinary
-      const formData = new FormData();
-      formData.append("file", image);
-      formData.append("upload_preset", "civic_reports");
+  try {
+    // 1. Upload image to Cloudinary
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", "civic_reports");
 
-      const cloudinaryResponse = await fetch(
-        "https://api.cloudinary.com/v1_1/temhkgwl/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const cloudinaryData = await cloudinaryResponse.json();
-
-      if (!cloudinaryResponse.ok) {
-        throw new Error(cloudinaryData.error?.message || "Image upload failed");
+    const cloudinaryResponse = await fetch(
+      "https://api.cloudinary.com/v1_1/temhkgwl/image/upload",
+      {
+        method: "POST",
+        body: formData,
       }
+    );
 
-      // Save report + image URL to Firestore
-      await addDoc(collection(db, "reports"), {
-        title,
-        description,
-        category,
-        location,
-        imageUrl: cloudinaryData.secure_url,
-        userId: auth.currentUser?.uid || null,
-        status: "Pending",
-        severity: severity,
-        aiCategory: category,
-        aiProcessed: false,
-        createdAt: serverTimestamp(),
-      });
+    const cloudinaryData = await cloudinaryResponse.json();
 
-      alert("Report submitted successfully!");
-
-      setTitle("");
-      setDescription("");
-      setCategory("Roads");
-      setLocation("");
-      setImage(null);
-
-    } catch (error) {
-      console.error("Error submitting report:", error);
-      alert("Failed to submit report");
-    } finally {
-      setLoading(false);
+    if (!cloudinaryResponse.ok) {
+      throw new Error(
+        cloudinaryData.error?.message || "Image upload failed"
+      );
     }
-  };
+
+    const imageUrl = cloudinaryData.secure_url;
+
+    // 2. Send image + description to Gemini backend
+    const aiResponse = await fetch(
+      "http://localhost:5000/api/analyze-report",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageUrl,
+          description,
+        }),
+      }
+    );
+
+    const aiData = await aiResponse.json();
+
+    if (!aiResponse.ok) {
+      throw new Error(aiData.error || "AI analysis failed");
+    }
+
+    const analysis = aiData.analysis;
+
+    console.log("AI Analysis:", analysis);
+
+    // 3. Save report + AI analysis to Firestore
+    await addDoc(collection(db, "reports"), {
+      title,
+      description,
+      category: analysis.category,
+      location,
+      imageUrl,
+
+      userId: auth.currentUser?.uid || null,
+
+      status: "Pending",
+
+      severity: analysis.severity,
+
+      aiCategory: analysis.category,
+      aiSeverity: analysis.severity,
+      aiSuggestedTitle: analysis.suggestedTitle,
+      aiExplanation: analysis.explanation,
+      aiProcessed: true,
+
+      createdAt: serverTimestamp(),
+    });
+
+    alert("Report submitted successfully!");
+
+    // 4. Reset form
+    setTitle("");
+    setDescription("");
+    setCategory("Roads");
+    setLocation("");
+    setImage(null);
+    setSeverity("Medium");
+
+  } catch (error) {
+    console.error("Error submitting report:", error);
+    alert(error.message || "Failed to submit report");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
@@ -164,7 +203,7 @@ function Report() {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Submitting..." : "Submit report"}
+            {loading ? "Analyzing with AI..." : "Submit report"}
           </button>
 
         </form>

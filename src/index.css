@@ -54,3 +54,23 @@ a {
   color: inherit;
   text-decoration: none;
 }
+.ai-analysis {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  background: #eef7f3;
+  border: 1px solid #cfe5db;
+}
+
+.ai-analysis h3 {
+  margin: 0 0 15px;
+  color: var(--graphite);
+}
+
+.ai-analysis p {
+  margin: 8px 0;
+}
+
+.ai-analysis strong {
+  color: var(--graphite);
+}
