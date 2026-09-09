@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp,getDocs } from "firebase/firestore";
 import { auth, db } from "../services/firebase";
 import Navbar from "../components/Navbar";
 
@@ -70,7 +70,47 @@ function Report() {
     const analysis = aiData.analysis;
 
     console.log("AI Analysis:", analysis);
+    // 3. Get existing reports for duplicate detection
+    const reportsSnapshot = await getDocs(
+      collection(db, "reports")
+    );
 
+    const existingReports = reportsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    console.log("Existing reports:", existingReports);
+
+    // 4. Check whether this report is a possible duplicate
+    const duplicateResponse = await fetch(
+      "http://localhost:5000/api/check-duplicate",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newReport: {
+            title,
+            description,
+            category: analysis.category,
+            location,
+          },
+          existingReports,
+        }),
+      }
+    );
+
+    const duplicateData = await duplicateResponse.json();
+
+    if (!duplicateResponse.ok) {
+      throw new Error(
+        duplicateData.error || "Duplicate detection failed"
+      );
+    }
+
+console.log("Duplicate Check:", duplicateData);
     // 3. Save report + AI analysis to Firestore
     await addDoc(collection(db, "reports"), {
       title,
@@ -89,8 +129,17 @@ function Report() {
       aiSeverity: analysis.severity,
       aiSuggestedTitle: analysis.suggestedTitle,
       aiExplanation: analysis.explanation,
+      aiPriority: analysis.priority,
+      aiDepartment: analysis.department,
+      aiRecommendedAction: analysis.recommendedAction,
+      aiEstimatedResponseTime: analysis.estimatedResponseTime,
       aiProcessed: true,
 
+      possibleDuplicate: duplicateData.duplicate,
+      duplicateConfidence: duplicateData.confidence,
+      duplicateReportId: duplicateData.duplicateReportId,
+      duplicateReason: duplicateData.reason,
+      
       createdAt: serverTimestamp(),
     });
 

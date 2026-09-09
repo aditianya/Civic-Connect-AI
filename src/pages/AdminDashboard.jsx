@@ -92,6 +92,51 @@ function AdminDashboard() {
           <p>
             Location: {report.location}
           </p>
+          {report.aiProcessed && (
+      <div className="admin-ai-analysis">
+        <h3>🤖 AI Analysis</h3>
+
+    <p>
+      <strong>Suggested Issue:</strong>{" "}
+      {report.aiSuggestedTitle}
+    </p>
+
+    <p>
+      <strong>AI Category:</strong>{" "}
+      {report.aiCategory}
+    </p>
+
+    <p>
+      <strong>AI Severity:</strong>{" "}
+      {report.aiSeverity}
+    </p>
+
+    <p>
+      <strong>AI Explanation:</strong>{" "}
+      {report.aiExplanation}
+    </p>
+    <p>
+  <strong>Priority:</strong>{" "}
+  {report.aiPriority}
+</p>
+
+<p>
+  <strong>Department:</strong>{" "}
+  {report.aiDepartment}
+</p>
+
+<p>
+  <strong>Recommended Action:</strong>{" "}
+  {report.aiRecommendedAction}
+</p>
+
+<p>
+  <strong>Estimated Response Time:</strong>{" "}
+  {report.aiEstimatedResponseTime}
+</p>
+
+  </div>
+)}
           <p>
             Status:{" "}
             <span

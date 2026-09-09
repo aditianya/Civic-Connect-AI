@@ -63,12 +63,14 @@ a {
 }
 
 .ai-analysis h3 {
-  margin: 0 0 15px;
+  margin: 0 0 14px;
   color: var(--graphite);
 }
 
 .ai-analysis p {
   margin: 8px 0;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .ai-analysis strong {
