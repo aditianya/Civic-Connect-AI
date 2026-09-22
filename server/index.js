@@ -1,16 +1,11 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
 import { GoogleGenAI } from "@google/genai";
-
 dotenv.config();
-
 const app = express();
-
 app.use(cors());
 app.use(express.json());
-
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 
@@ -25,11 +20,9 @@ const ai = new GoogleGenAI({
     },
   },
 });
-
 app.get("/", (req, res) => {
   res.send("CivicMind AI server is running");
 });
-
 app.post("/api/analyze-report", async (req, res) => {
   try {
     const { imageUrl, description } = req.body;
@@ -194,12 +187,6 @@ app.post("/api/check-duplicate", async (req, res) => {
       });
     }
 
-    if (!newReport.imageUrl) {
-      return res.status(400).json({
-        error: "New report image is required",
-      });
-    }
-
     if (!existingReports || existingReports.length === 0) {
       return res.json({
         success: true,
@@ -210,157 +197,68 @@ app.post("/api/check-duplicate", async (req, res) => {
       });
     }
 
-    // Prefer reports from the same location.
-    const normalize = (value) =>
-      (value || "").trim().toLowerCase();
-
-    const newLocation = normalize(newReport.location);
-
-    let candidates = existingReports.filter(
-      (report) =>
-        normalize(report.location) === newLocation
-    );
-
-    // If there are no reports at the exact location,
-    // compare a small number of existing reports instead.
-    if (candidates.length === 0) {
-      candidates = existingReports.slice(0, 5);
-    }
-
-    // Limit candidates so the Gemini request does not become too large.
-    candidates = candidates.slice(0, 5);
-
-    console.log(
-      `Comparing new report with ${candidates.length} existing reports...`
-    );
-
-    // Download the new image.
-    const newImageResponse = await fetch(newReport.imageUrl);
-
-    if (!newImageResponse.ok) {
-      throw new Error("Could not download new report image");
-    }
-
-    const newImageBuffer = Buffer.from(
-      await newImageResponse.arrayBuffer()
-    );
-
-    const newMimeType =
-      newImageResponse.headers.get("content-type") ||
-      "image/jpeg";
-
-    const contents = [];
-
-    // New report image
-    contents.push({
-      inlineData: {
-        mimeType: newMimeType,
-        data: newImageBuffer.toString("base64"),
-      },
-    });
-
-    // New report information
-    contents.push({
-      text: `
-NEW REPORT
-
-Title: ${newReport.title || ""}
-Description: ${newReport.description || ""}
-Category: ${newReport.category || ""}
-Location: ${newReport.location || ""}
-`,
-    });
-
-    // Add existing reports and their images.
-    for (let i = 0; i < candidates.length; i++) {
-      const report = candidates[i];
-
-      contents.push({
-        text: `
-EXISTING REPORT ${i + 1}
-
+    // Only send useful information to Gemini.
+    const reportsText = existingReports
+      .slice(0, 10)
+      .map(
+        (report, index) => `
+REPORT ${index + 1}
 ID: ${report.id}
 Title: ${report.title || ""}
 Description: ${report.description || ""}
 Category: ${report.category || ""}
 Location: ${report.location || ""}
-`,
-      });
-
-      if (report.imageUrl) {
-        try {
-          const imageResponse = await fetch(report.imageUrl);
-
-          if (imageResponse.ok) {
-            const imageBuffer = Buffer.from(
-              await imageResponse.arrayBuffer()
-            );
-
-            const mimeType =
-              imageResponse.headers.get("content-type") ||
-              "image/jpeg";
-
-            contents.push({
-              inlineData: {
-                mimeType,
-                data: imageBuffer.toString("base64"),
-              },
-            });
-          }
-        } catch (imageError) {
-          console.warn(
-            `Could not download image for report ${report.id}:`,
-            imageError.message
-          );
-        }
-      }
-    }
+AI Category: ${report.aiCategory || ""}
+AI Suggested Title: ${report.aiSuggestedTitle || ""}
+`
+      )
+      .join("\n");
 
     const prompt = `
-You are an AI duplicate-detection system for a civic issue
-reporting platform.
+You are a duplicate-detection system for a civic issue reporting platform.
 
-Determine whether the NEW REPORT describes the SAME real-world
-civic issue as any EXISTING REPORT.
+Compare the NEW REPORT with the EXISTING REPORTS.
 
-Use ALL available evidence:
+A report should be considered a possible duplicate when it appears
+to describe the SAME real-world civic problem.
 
-1. Visual similarity between the images
-2. Issue similarity
-3. Description similarity
-4. Location similarity
-5. Specific landmarks or places
+IMPORTANT:
 
-IMPORTANT RULES:
-
-- Same location + same issue is a strong duplicate signal.
-- Similar images are a strong duplicate signal.
-- Different user wording does NOT mean different issues.
+- Same or very similar location is a STRONG signal.
+- Same or very similar issue is a STRONG signal.
+- Similar descriptions are a STRONG signal.
+- Similar titles are useful.
 - Different categories do NOT automatically mean different issues.
-- For example, "Other" and "Waste Management" can still describe
-  the same real-world problem.
-- Do NOT mark reports as duplicates merely because they share
-  a category.
-- Do NOT mark unrelated problems at the same location as duplicates.
+- Do NOT mark reports duplicate just because they are in the same category.
+- Focus on whether they describe the same physical problem.
 
-The NEW REPORT is followed by EXISTING REPORTS.
-The images appear in the same order as their corresponding reports.
+NEW REPORT:
 
-Choose the SINGLE strongest matching existing report.
+Title: ${newReport.title || ""}
+Description: ${newReport.description || ""}
+Category: ${newReport.category || ""}
+Location: ${newReport.location || ""}
 
-Return duplicate=true only when there is convincing evidence
-that the reports describe the same real-world civic issue.
+EXISTING REPORTS:
+
+${reportsText}
+
+Choose the SINGLE strongest matching report.
+
+If the same issue appears to have already been reported,
+return duplicate=true.
+
+Otherwise return duplicate=false.
 
 Return only JSON.
 `;
 
-    console.log("Sending duplicate comparison to Gemini...");
+    console.log("Checking duplicate reports...");
 
     const response = await ai.models.generateContent({
       model: "gemini-3.8-flash",
 
       contents: [
-        ...contents,
         {
           text: prompt,
         },
@@ -418,7 +316,6 @@ Return only JSON.
   }
 });
 const PORT = 5000;
-
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

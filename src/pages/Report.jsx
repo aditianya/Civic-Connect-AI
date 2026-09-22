@@ -111,7 +111,16 @@ function Report() {
     }
 
 console.log("Duplicate Check:", duplicateData);
-    // 3. Save report + AI analysis to Firestore
+if (duplicateData.duplicate) {
+  alert(
+    `Possible duplicate report detected!\n\n` +
+    `Confidence: ${duplicateData.confidence}%\n\n` +
+    `${duplicateData.reason}`
+  );
+
+  return;
+}
+    // 3. Save report + AI analysis to Firestore only if it is not duplicate 
     await addDoc(collection(db, "reports"), {
       title,
       description,
