@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import CommunityReportsMap from "./CommunityReportsMap";
 function OperationsConsole() {
   return (
     <section className="operations" id="operations">
@@ -88,6 +89,17 @@ function OperationsConsole() {
         </article>
 
       </div>
+
+      <section className="operations-map" id="operations-map" aria-label="Live reports console map">
+        <div className="section-heading operations-map-heading">
+          <div>
+            <p className="eyebrow">Live map</p>
+            <h2>Explore reported issues</h2>
+          </div>
+          <Link to="/reports" className="operations-map-link">Open full map →</Link>
+        </div>
+        <CommunityReportsMap />
+      </section>
 
     </section>
   );

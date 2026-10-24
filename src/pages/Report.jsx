@@ -118,6 +118,7 @@ await addDoc(collection(db, "reports"), {
       <div className="report-form-grid"><label className="report-form-wide">Issue title<input type="text" placeholder="e.g. Large pothole near the main gate" value={title} onChange={(event) => setTitle(event.target.value)} required /></label>
         <label>Category<select value={category} onChange={(event) => setCategory(event.target.value)}><option>Roads</option><option>Waste Management</option><option>Water Supply</option><option>Electricity</option><option>Public Safety</option><option>Streetlights</option><option>Other</option></select></label>
         <label>Location<input type="text" placeholder="e.g. Main Road, Ward 4" value={location} onChange={(event) => setLocation(event.target.value)} required /></label>
+        <div className="report-form-wide"><LocationPicker position={position} onSelect={setPosition} /></div>
         <label className="report-form-wide">What did you notice?<textarea placeholder="Include landmarks, scale, and any immediate safety concern…" value={description} onChange={(event) => setDescription(event.target.value)} required /></label>
         <label className="report-form-wide">Photo evidence<input ref={fileInputRef} type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] || null)} required /><small>{image ? `${image.name} selected` : "A clear photo helps us route the issue correctly."}</small></label></div>
       <button className="button button--primary" type="submit" disabled={loading}>{loading ? "Checking report…" : "Submit report"}</button>

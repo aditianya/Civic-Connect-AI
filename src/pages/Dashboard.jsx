@@ -24,7 +24,7 @@ function Dashboard() {
             <div className="hero__actions">
               <a
                 className="button button--primary"
-                href="#operations"
+                href="#operations-map"
               >
                 Open live console
               </a>
