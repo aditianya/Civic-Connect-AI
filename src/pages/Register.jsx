@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { db } from "../services/firebase";
 import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
@@ -15,7 +17,13 @@ function Register() {
     setError("");
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(db, "users", credential.user.uid), {
+        uid: credential.user.uid,
+        email: credential.user.email,
+        role: "citizen",
+        createdAt: serverTimestamp(),
+      });
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);

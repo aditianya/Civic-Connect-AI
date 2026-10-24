@@ -1,172 +1,144 @@
-import { useEffect, useState } from "react";
-import {collection,onSnapshot,doc,updateDoc,} from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
+import { collection, doc, onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
+import Navbar from "../components/Navbar";
+
+const statuses = ["All", "Pending", "In Progress", "Escalated", "Resolved"];
 
 function AdminDashboard() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("All");
-
-  // Count pending reports
-  const pendingReports = reports.filter(
-    (report) => report.status === "Pending"
-  ).length;
-
-  // Count resolved reports
-  const resolvedReports = reports.filter(
-    (report) => report.status === "Resolved"
-  ).length;
-
-  // Filter reports
-  const filteredReports =filter === "All"? reports: reports.filter((report) => report.status === filter);
-
-  // Get real-time reports from Firestore
+  const [error, setError] = useState("");
+  const [updatingId, setUpdatingId] = useState(null);
+  const [referralTargets, setReferralTargets] = useState({});
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "reports"),
-      (snapshot) => {
-        const reportData = snapshot.docs.map((doc) => ({
-          id: doc.id,...doc.data(),}));
-        setReports(reportData);
-      }
-    );
-    // Stop listening when component is removed
-    return () => unsubscribe();
+    const reportsQuery = query(collection(db, "reports"), orderBy("createdAt", "desc"));
+    return onSnapshot(reportsQuery, (snapshot) => { setReports(snapshot.docs.map((report) => ({ id: report.id, ...report.data() }))); setError(""); }, () => setError("Reports could not be loaded. Confirm that your account has the admin role."));
   }, []);
-  // Update report status
-  const updateStatus = async (id, newStatus) => {
+  const metrics = useMemo(() => ({ total: reports.length, pending: reports.filter((report) => report.status === "Pending").length, resolved: reports.filter((report) => report.status === "Resolved").length }), [reports]);
+  const filteredReports = filter === "All" ? reports : reports.filter((report) => report.status === filter);
+  const updateStatus = async (id, status) => {
+    setUpdatingId(id); setError("");
+    try { await updateDoc(doc(db, "reports", id), { status, updatedAt: new Date() }); }
+    catch { setError("The report status could not be updated."); }
+    finally { setUpdatingId(null); }
+  };
+  const referReport = async (report) => {
+    const escalatedTo = referralTargets[report.id] || "Higher authority";
+    setUpdatingId(report.id); setError("");
     try {
-      await updateDoc(doc(db, "reports", id), {
-        status: newStatus,
+      await updateDoc(doc(db, "reports", report.id), {
+        status: "Escalated",
+        escalatedTo,
+        escalatedAt: new Date(),
+        updatedAt: new Date(),
       });
-      setReports((prevReports) =>
-        prevReports.map((report) =>
-          report.id === id
-            ? { ...report, status: newStatus }
-            : report
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
+    } catch {
+      setError("The report could not be referred. Please try again.");
+    } finally {
+      setUpdatingId(null);
     }
   };
   return (
-    <div className="admin-dashboard">
-      <h1>Admin Dashboard</h1>
-      {/* Metrics */}
-      <div className="admin-metrics">
-        <div className="metric-card">
-          <h3>Total Reports</h3>
-          <p>{reports.length}</p>
+    <>
+      <Navbar />
+      <main className="admin-dashboard">
+        <header className="admin-header">
+          <div>
+            <p className="eyebrow">Restricted workspace</p>
+            <h1>Operations dashboard</h1>
+            <p>Review incoming reports and keep residents informed as work progresses.</p>
+          </div>
+          <span className="admin-role-badge">Admin access</span>
+        </header>
+
+        {error && <p className="form-notice form-notice--error" role="alert">{error}</p>}
+        <section className="admin-metrics" aria-label="Report statistics">
+          <article className="metric-card"><span>All reports</span><strong>{metrics.total}</strong></article>
+          <article className="metric-card metric-card--pending"><span>Awaiting review</span><strong>{metrics.pending}</strong></article>
+          <article className="metric-card metric-card--resolved"><span>Resolved</span><strong>{metrics.resolved}</strong></article>
+        </section>
+
+        <div className="report-filters" aria-label="Filter reports by status">
+          {statuses.map((status) => (
+            <button className={filter === status ? "is-active" : ""} type="button" onClick={() => setFilter(status)} key={status}>
+              {status}
+            </button>
+          ))}
         </div>
-        <div className="metric-card">
-          <h3>Pending</h3>
-          <p>{pendingReports}</p>
-        </div>
-        <div className="metric-card">
-          <h3>Resolved</h3>
-          <p>{resolvedReports}</p>
-        </div>
-      </div>
-      {/* Report Filters */}
-      <div className="report-filters">
-        <button onClick={() => setFilter("All")}>All</button>
-        <button onClick={() => setFilter("Pending")}>Pending </button>
-        <button onClick={() => setFilter("In Progress")}>In Progress</button>
-        <button onClick={() => setFilter("Resolved")}>Resolved</button>
-      </div>
 
-      {/* Reports */}
-      {filteredReports.map((report) => (
-        <div className="report-card" key={report.id}>
-          <h3>{report.title}</h3>
-          {report.imageUrl && (<img src={report.imageUrl}
-    alt={report.title}
-    className="report-image"
-  />
-)}
+        <section className="admin-report-list">
+          {filteredReports.length ? filteredReports.map((report) => {
+            const severity = String(report.aiSeverity || report.severity || "Unrated");
+            const severityClass = severity.toLowerCase().replaceAll(" ", "-");
+            const status = report.status || "Pending";
 
-          <p>{report.description}</p>
-          <p>
-            Category: {report.category}
-          </p>
-          <p>
-            Location: {report.location}
-          </p>
-          {report.aiProcessed && (
-      <div className="admin-ai-analysis">
-        <h3>🤖 AI Analysis</h3>
-
-    <p>
-      <strong>Suggested Issue:</strong>{" "}
-      {report.aiSuggestedTitle}
-    </p>
-
-    <p>
-      <strong>AI Category:</strong>{" "}
-      {report.aiCategory}
-    </p>
-
-    <p>
-      <strong>AI Severity:</strong>{" "}
-      {report.aiSeverity}
-    </p>
-
-    <p>
-      <strong>AI Explanation:</strong>{" "}
-      {report.aiExplanation}
-    </p>
-    <p>
-  <strong>Priority:</strong>{" "}
-  {report.aiPriority}
-</p>
-
-<p>
-  <strong>Department:</strong>{" "}
-  {report.aiDepartment}
-</p>
-
-<p>
-  <strong>Recommended Action:</strong>{" "}
-  {report.aiRecommendedAction}
-</p>
-
-<p>
-  <strong>Estimated Response Time:</strong>{" "}
-  {report.aiEstimatedResponseTime}
-</p>
-
-  </div>
-)}
-          <p>
-            Status:{" "}
-            <span
-              className={`status-badge ${
-                report.status
-                  ?.toLowerCase()
-                  .replace(" ", "-")
-              }`}
-            >
-              {report.status}
-            </span>
-          </p>
-          <button
-            onClick={() =>
-              updateStatus(report.id, "In Progress")
-            }
-          >
-            Mark In Progress
-          </button>
-
-          <button
-            onClick={() =>
-              updateStatus(report.id, "Resolved")
-            }
-          >
-            Mark Resolved
-          </button>
-        </div>
-      ))}
-    </div>
+            return (
+              <article className="admin-report-card" key={report.id}>
+                <div className="admin-report-card__body">
+                  <div className="admin-report-card__top">
+                    <span className="report-category">{report.category || "Other"}</span>
+                    <span className={`status-badge ${status.toLowerCase().replaceAll(" ", "-")}`}>{status}</span>
+                  </div>
+                  <span className={`severity-tag severity-tag--${severityClass}`}>{severity} severity</span>
+                  <h2>{report.title}</h2>
+                  <p>{report.description}</p>
+                  <p className="report-location">Location: {report.location}</p>
+                  {report.escalatedTo && <p className="admin-referral-note">Referred to: <strong>{report.escalatedTo}</strong></p>}
+                  {report.imageUrl && <img src={report.imageUrl} alt={report.title} className="report-image" />}
+                  {report.aiProcessed && (
+                    <details className="admin-ai-analysis">
+                      <summary>AI triage details</summary>
+                      <dl>
+                        <div><dt>Severity</dt><dd>{report.aiSeverity}</dd></div>
+                        <div><dt>Priority</dt><dd>{report.aiPriority}</dd></div>
+                        <div><dt>Department</dt><dd>{report.aiDepartment}</dd></div>
+                        <div><dt>Recommended action</dt><dd>{report.aiRecommendedAction}</dd></div>
+                      </dl>
+                    </details>
+                  )}
+                </div>
+                <div className="admin-report-actions">
+                  <span>Update report</span>
+                  {["In Progress", "Resolved"].map((nextStatus) => (
+                    <button
+                      disabled={updatingId === report.id || report.status === nextStatus}
+                      type="button"
+                      onClick={() => updateStatus(report.id, nextStatus)}
+                      key={nextStatus}
+                    >
+                      {updatingId === report.id ? "Saving…" : nextStatus}
+                    </button>
+                  ))}
+                  <label className="admin-referral-label" htmlFor={`referral-${report.id}`}>Refer issue to</label>
+                  <select
+                    id={`referral-${report.id}`}
+                    value={referralTargets[report.id] || "Higher authority"}
+                    onChange={(event) => setReferralTargets((targets) => ({ ...targets, [report.id]: event.target.value }))}
+                  >
+                    <option>Higher authority</option>
+                    <option>Industry partner</option>
+                  </select>
+                  <button
+                    className="admin-referral-button"
+                    disabled={updatingId === report.id}
+                    type="button"
+                    onClick={() => referReport(report)}
+                  >
+                    {updatingId === report.id ? "Saving…" : "Forward report"}
+                  </button>
+                </div>
+              </article>
+            );
+          }) : (
+            <div className="empty-reports">
+              <h2>No {filter === "All" ? "reports" : `${filter.toLowerCase()} reports`} yet</h2>
+              <p>New reports will appear here in real time.</p>
+            </div>
+          )}
+        </section>
+      </main>
+    </>
   );
 }
 

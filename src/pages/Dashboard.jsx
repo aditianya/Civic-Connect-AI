@@ -14,7 +14,7 @@ function Dashboard() {
           <div className="hero__content">
             <p className="eyebrow">Community Hero</p>
 
-            <h1>CivicMind AI</h1>
+            <h1>Civic Connect</h1>
 
             <p className="hero__lede">
               An AI-powered community operating system for turning
